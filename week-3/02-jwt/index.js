@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const jwtPassword = 'secret';
+const zod=require("zod");
 
 
 /**
@@ -13,8 +14,22 @@ const jwtPassword = 'secret';
  *                        Returns null if the username is not a valid email or
  *                        the password does not meet the length requirement.
  */
+
+const emailschema=zod.string().email();
+const passwordschema=zod.string().min(6);
+
 function signJwt(username, password) {
+    const usernameResponse=emailschema.safeParse(username);
+    const passwordResponse=passwordschema.safeParse(password);
+
+    if(!usernameResponse.success || !passwordResponse.success){
+        return null;
+    }
     // Your code here
+    const signature=jwt.sign({
+        username
+    },jwtPassword)
+    return signature;
 }
 
 /**
@@ -27,6 +42,21 @@ function signJwt(username, password) {
  */
 function verifyJwt(token) {
     // Your code here
+    // const verify=jwt.verify(token,jwtPassword);
+    // if(verify){
+    //     return true;
+    // }else{
+    //     return false;
+    // }THIS IS WRONG   
+    //NOTE VERIFYJWT IS A WEIRED FUNCTION AS IT IF IT CORRECT THEN IT RETURN THE VALUE IF THERE IS ANY ERROR IT BECOMES PANIC AND RETURN A ERROR NOT FALSE THATS WHY WE HAVE TO USE TRY AND CATCH
+    //
+    let ans=true;
+    try{
+        jwt.verify(token,jwtPassword);
+    }catch(e){
+        ans=false;
+    }
+    return ans;
 }
 
 /**
@@ -38,6 +68,12 @@ function verifyJwt(token) {
  */
 function decodeJwt(token) {
     // Your code here
+    const decode=jwt.decode(token);
+    if(decode){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 
